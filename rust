@@ -1,0 +1,95 @@
+#[derive(Debug)]
+struct Item {
+    index: u32,
+    name: String,
+    quantity: u32,
+    price: Option<u32>,
+}
+
+#[derive(Debug)]
+enum StoreError {
+    NotFound,
+    OutOfStock,
+}
+
+#[derive(Debug)]
+struct Store {
+    inventory: Vec<Item>,
+}
+
+impl Store {
+    fn new() -> Store {
+        Store {
+            inventory: Vec::new(),
+        }
+    }
+
+    fn add_item(
+        &mut self,
+        item_index: u32,
+        item_name: String,
+        item_quantity: u32,
+        item_price: Option<u32>,
+    ) {
+        let new_item = Item {
+            index: item_index,
+            name: item_name,
+            quantity: item_quantity,
+            price: item_price,
+        };
+
+        self.inventory.push(new_item);
+    }
+
+    fn sell_item(&mut self, item_name: &str, item_quantity: u32) -> Result<String, String> {
+        for item in &mut self.inventory {
+            if item.name == item_name {
+                if item_quantity <= item.quantity {
+                    item.quantity -= item_quantity;
+                    return Ok(String::from("Item Sold!"));
+                } else {
+                    return Err(String::from("No enough quantity!"));
+                }
+            }
+        }
+        Err(String::from("Item Not Foun!"))
+    }
+
+    fn add_quantity(&mut self, item_name: &str, add_quantity: u32) -> Result<(), String> {
+        for item in &mut self.inventory {
+            if item.name == item_name {
+                item.quantity += add_quantity;
+                return Ok(());
+            }
+        }
+        Err(String::from("Item Not Found!"))
+    }
+
+    fn get_item_price(&self, item_name: &String) -> Option<u32> {
+        for item in &self.inventory {
+            if item.name == *item_name {
+                println!("{:?}", item.price);
+                Some(item.price);
+            }
+        }
+        None
+    }
+
+    fn list_inventory(&self) {
+        for items in &self.inventory {
+            println!("{:?}", items);
+        }
+    }
+}
+
+fn main() {
+    let mut new_store = Store::new();
+    new_store.add_item(1, "Mask".to_string(), 43, Some(10));
+    new_store.add_item(2, "Gloves".to_string(), 21, Some(5));
+    let sell_item = new_store.sell_item("Mask", 43);
+    println!("{:?}", sell_item);
+    new_store.add_quantity("Mask", 40);
+    println!("{:?}", new_store);
+    new_store.get_item_price(&"Gloves".to_string());
+    new_store.list_inventory();
+}
